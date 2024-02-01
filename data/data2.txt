@@ -1,0 +1,3 @@
+segment::A1:S1 H.K2:S2 H.A3:I3 H.M4:S4 H.I1 D.I3 U.K3 D
+signal::G1.K1.M2.I3.K3
+train::A1 S2.A3 S4.S1 A1.S2 A3

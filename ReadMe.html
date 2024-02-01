@@ -1,0 +1,778 @@
+﻿<!--
+Copyright 2024   Gi Tae Cho
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. -->
+
+<!DOCTYPE html> <!-- Last updated: 2023.5.15 -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Signaling System &amp; Read Me</title>
+    <!--link rel="stylesheet" type="text/css" href=".\Design_TSSys.css"/-->
+    <style>
+        /*주의!: style element안에 주석 달때 '//'는 허용안됨.*/
+        header {
+            background-color:black;
+            color:white;
+            text-align:center;
+            padding:1px;	 
+        }
+        nav {
+            line-height:30px;
+            background-color:#eeeeee;
+            height:1600px;
+            width:100px;
+            float:left;
+            padding:5px;	      
+        }
+        nav a.sel {
+            background:#9ACD32;
+        }
+        section {
+            /*width:1200px;*/
+            float:left;
+            padding: 10px 0 0 10px;	 	 
+        }
+        footer {
+            background-color:black;
+            color:white;
+            clear:both;
+            text-align:center;
+            padding:5px;	 	 
+        }
+
+        /* a.menu:active { color: mediumblue; }*/
+        a.menu:link { text-decoration: none; }
+        a.menu:visited { text-decoration: none; }
+        a.menu:hover { 
+            color: indigo; 
+            background-color: gold;
+            text-decoration: underline;
+        }
+
+        div {
+            font-size: large;
+            max-width: 1000px;
+        }
+        /*section div { text-indent: 25px;}*/
+        section div { padding-left: 25px;}
+        section div p { padding-left: 25px;}
+
+        details { margin: 10px 0 0 25px } /* Top, Right, Bottom, Left */
+        details.detailL2 { margin: 10px 0 0 50px }
+        details.detailL3 { margin: 10px 0 0 100px }
+        details.table {margin-left: 5px}
+        /*details div { text-indent: 25px;}        */
+
+        /*summary { color: blue; text-decoration: underline;}*/
+        /*.dtSummary { color: blue; } /*text-decoration: underline;*/
+        summary u { color: blue; /*text-decoration: underline;*/}
+
+        table, th, td { 
+            border: 1px solid black;
+            border-collapse: collapse; /* for single line */
+            padding: 0 10px 0 10px;
+            color: black;
+        }
+
+        table {margin: 0 10px 0 50px;} /* Top, Right, Bottom, Left */
+
+        /* for the nested table */
+        td table {
+            margin: 0 10px 0 20px; /* Top, Right, Bottom, Left */
+            text-align: center;
+        }
+
+
+        tr:nth-child(even) { background-color: lightyellow; }
+
+        th { background-color: lightgray; }
+        td table th { background-color: lightblue; } /* for nested table's header */
+            
+        /* odd td under the table of which class is not 'withId' */
+        /*table:not([class="withId"]) td:nth-child(odd) { text-align: center; vertical-align: top; padding-top: 5px;}*/
+        /*table[class='withId'] td:nth-child(odd) { line-height:0.8;}*/ /* for the 4.2 in the table. but commented out since the issue resolved after removing the pre tag which was enclosing the table in question. */
+        /*table[class='withId'] details td:nth-child(odd) { line-height:1;}*/ /* for the 4.2 in the nested table. but commented out since the issue resolved after removing the pre tag which was enclosing the table in question. */
+        /*table[class='withId'] td:nth-child(even) { text-align: center;}        
+        table.withId td:nth-child(3) { padding-left: 15px;}*/ /* I could get it worked after I add a class to all nested tables as 'tNested'. */
+
+        /*#mTbl5 td:nth-child(3) { padding-left: 15px;}*/
+        table:td:nth-child(odd) { vertical-align: top; padding-top: 5px; }
+        td { max-width: 800px;}
+        /*details:link { text-decoration: none; }*/
+        /*details summary:visited { text-decoration: none; }*/
+        /*section div details summary{ background-color: lightgreen; }*/
+        section div details[open] > summary > u { background-color: lightgreen;}
+
+        details summary:hover { 
+            color: indigo; 
+            background-color: gold;
+            text-decoration: underline;
+        }
+
+        i > span::before, section > div > span::before { 
+            content: "\a\2003\2003"; /* '\a' is for line break. '\2003' is 0x2003 and for the general punctuation '&emsp;' */
+            line-height: 0%;
+            white-space: pre;
+            clear: right;
+        }
+
+        .r { background-color: red; color: cyan;}
+        .g { background-color: green; color: pink;}
+        .b { background-color: blue; color: yellow;}
+        .fbby { background-color: yellow; color: blue;}
+        .by { background-color: yellow;}
+        .fr { color: red;}
+        .fb { color: blue;}
+        .fg { color: lightgrey;}
+        .fgn { color: grey; font-size: small;}
+
+        span[class^="indtL"] {
+            /*line-height: 0%;*/
+            white-space: pre;
+            clear: right;
+        }
+
+        /* '\a' is for line break. '\2003' is 0x2003 and for the general punctuation '&emsp;' */
+        span.indtL1::before { content: "\a\2003"; } /* '\a' is for line break. '\2003' is 0x2003 and for the general punctuation '&emsp;' */
+        span.indtL2::before { content: "\a\2003\2003"; } 
+        span.indtL3::before { content: "\a\2003\2003\2003"; }
+        span.indtL4::before { content: "\a\2003\2003\2003\2003"; }
+        /*td.date { padding: 2px 8px 2px 8px; }*/  /* top right bottom left */
+
+        iframe { width: 500px; max-height: 300px; border:none;}
+
+        div.cmd {
+            background-color: lightgray;
+            padding: 15 15 15 15;
+            line-height: 1.3;
+            margin-left: 50px;
+        }
+
+        .img {margin-left: 50px;}
+
+    </style>
+
+    <script>
+        //let aIds = [ "intro", "install", "getStarted", "network", "simulation", "resultAnalysis", "troubleshooting", "conclusion", "help" ];
+        let aIds = [ "intro", "install", "getStarted", "network", "simulation", "demo", "license"];
+        let initialPageIx = -1; // -1 for the intro, but it will be replaced as soon as the caller html is loaded.
+        let bOpenAllClicked = true;
+        let bOpenAllTopClicked = true;
+        var lastItem;
+        var lastIx;
+        var aboutSmhCtrl;
+
+        var InitShowNavElement= function() {
+            lastItem = 0;
+            lastIx = 0;
+            aboutSmhCtrl = false;
+        }
+
+        // This function doesn't use jQuery. It shows the selected item on the navigation panel on the left.
+        // It also gets the selected Navigation menu toggled.
+        function showNavElement(item, arrayIds) {        
+            if( item < 0 ) {
+                var lId;
+                let id;
+                var ix = item * -1;
+                
+                if(aboutSmhCtrl === false) {
+                    document.getElementById('highlight').hidden = true;
+                    aboutSmhCtrl = true;
+                }
+                
+                //if(item !== lastItem) {
+                    if( lastItem !== 0) lId = arrayIds[(lastItem + 1) * (-1)];
+                //}
+                
+                // added outer 'if-else' statement to get the selected menu on the 'nav' toggled.
+                if(item !== lastItem) {
+                    id = arrayIds[(item + 1) * (-1)];
+                    lastItem = item;
+                } else {
+                    lastItem = 0;
+                    document.getElementById('highlight').hidden = false;
+                    aboutSmhCtrl = false;
+                }
+                
+                if(lId !== undefined) {
+                    document.getElementById(lId).hidden = true;
+                    if(lastIx !== 0) document.getElementById('m' + lastIx.toString()).classList.remove('sel');
+                }
+                
+                if(id !== undefined) {
+                    document.getElementById(id).hidden = false;
+                    if(ix !== 0) document.getElementById('m' + ix.toString()).classList.add('sel');
+                    lastIx = ix;
+                }
+                
+                // if( item === -9 ) { // It is "9. Help"
+                //     document.getElementById("openCloseAll").disabled = true; // 'details' in the 'Help' page belongs to the top html file, so it cannot be
+                // } else {
+                //     document.getElementById("openCloseAll").disabled = false;
+                // }
+            } //else if(item === 1) el1 = true;
+        }
+
+        // following new 'showElement' function doesn't use jQuery.
+        function showElement(item) {
+            showNavElement(item, aIds);
+        }
+
+        function openOrCloseAll(bTopOnly) {
+            let div = document.getElementsByTagName("div");
+            
+            for(let i = 0; i < div.length; i++ ) {
+                if(div[i].hidden === false) {
+
+                    if( div[i].id === "help") { // 'details' tags in the 'Help' page belongs to the top html file, not one in iframe.
+                        let dt = document.getElementsByTagName('details');
+                        for( let i = 0; i < dt.length; i++ ) {
+                            if( bTopOnly === true ) { // open/close details only on top layer.
+                                //if( dt[i].parentElement.parentElement.tagName === "BODY" ) {
+                                if( dt[i].parentElement.parentElement.tagName === "SECTION" ) {
+                                    dt[i].open = bOpenAllTopClicked;
+                                }
+                            } else {
+                                dt[i].open = bOpenAllClicked;
+                            }
+                        }
+
+                        if( bTopOnly === true ) {
+                            if( bOpenAllTopClicked === true ) {
+                                document.getElementById("openCloseAllTop").innerText = "Close All Top";
+                            } else {
+                                document.getElementById("openCloseAllTop").innerText = "Open All Top";
+                            }                    
+                            bOpenAllTopClicked = !bOpenAllTopClicked;
+
+                        } else {
+                            if( bOpenAllClicked === true ) {
+                                document.getElementById("openCloseAll").innerText = "Close All";
+                            } else {
+                                document.getElementById("openCloseAll").innerText = "Open All";
+                            }
+                            bOpenAllClicked = !bOpenAllClicked;
+                        }
+
+                    } else {
+                        let ifr = div[i].getElementsByTagName("iframe");
+                        //let str = ifr.split("?");
+                        //ifr.src = str[0] + "?OpenAll=" + bOpen.toString();            
+                        if(ifr.length > 0 ) {
+                            let bHtm = ifr[0].src.includes(".htm"); // to make sure it contains .htm file.
+                            if( bHtm === true ) { // it contains .htm.
+                                if( bTopOnly === true ) {
+                                    if( bOpenAllTopClicked === true ) {
+                                        ifr[0].contentWindow.postMessage( {msg: "openAllTop"}, "*");
+                                        document.getElementById("openCloseAllTop").innerText = "Close All Top";
+                                    } else {
+                                        ifr[0].contentWindow.postMessage( {msg: "closeAllTop"}, "*");
+                                        document.getElementById("openCloseAllTop").innerText = "Open All Top";
+                                    } 
+
+                                    bOpenAllTopClicked = !bOpenAllTopClicked;
+                                } else {
+                                    if( bOpenAllClicked === true ) {
+                                        ifr[0].contentWindow.postMessage( {msg: "openAll"}, "*");
+                                        document.getElementById("openCloseAll").innerText = "Close All";
+                                    } else {
+                                        ifr[0].contentWindow.postMessage( {msg: "closeAll"}, "*");
+                                        document.getElementById("openCloseAll").innerText = "Open All";
+                                    }
+
+                                    bOpenAllClicked = !bOpenAllClicked;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        window.onload = function () {
+            var rgb, rgbTxt, rlt, s, v;
+            let ix = 0;
+            let color = ["<span class='r'>", "<span class='g'>", "<span class='b'>"];
+            //var smry, u;
+
+            InitShowNavElement();
+            // smry = document.getElementsByTagName("summary");
+
+            // for( let i = 0; i < smry.length; i++ ) {
+            //     u = smry[i].getElementsByTagName("u");
+            //     if( u.length > 0 ) u[0].classList = "dtSummary";
+            // }
+
+            //window.addEventListener("message", topEventHandler);
+
+            rgb = document.getElementsByClassName("rgb");
+            for( let i = 0; i < rgb.length; i++ ) {
+                rgbTxt = rgb[i].innerHTML.split("-&gt;");
+                rlt = '';
+                for( let j = 0; j < rgbTxt.length; j++ ) {
+                    s = '';
+                    for( let k = 0, ix = 0; k < rgbTxt[j].length; k++ ) {
+                        v = rgbTxt[j].at(k);
+                        if( v == "1" ) {
+                            //s += '<span class="r">O</span>';
+                            s += color[ix] + "&nbsp;O&nbsp;</span>";
+                            ix++;
+                        } else if( v == "0" ) {
+                            s += "<span class='fg'>&nbsp;O&nbsp;</span>";
+                            ix++;
+                        }
+                    }
+
+                    //if((j+1) < rgbTxt.length ) s += "<br/> "; //" =&gt;<br/> ";
+                    ////else if ( j > 0 ) s += "&emsp;&ensp;";
+                    
+                    // if( rgbTxt.length == 1) {
+                    //     rlt += "&emsp;" + s;
+                    // } else {
+                    //     rlt += "<span class='fgn'>" + (j+1).toString() + ".</span>&nbsp;" + s;
+                    // }
+
+                    // if((j+1) < rgbTxt.length ) rlt += "<br/>";
+                    rlt += s;
+                    if((j+1) < rgbTxt.length ) rlt += "<br/>";
+                }
+                rgb[i].innerHTML = rlt;
+            }
+
+            if( initialPageIx !== 0 ) {
+                showElement(initialPageIx);    // to show the command list page as the default.
+            }
+        }
+    </script>
+    <script>
+        initialPageIx = -1; // set the initially selected page with the corresponding index number. The index -1, for instance, is the Intro page.
+    </script>
+
+</head>
+<body>
+<nav><br/><br/>        
+    1. <a href="#" id="m1" class="menu" onClick="showElement(-1)">Introduction</a><br/><br/>
+    2. <a href="#" id="m2" class="menu" onClick="showElement(-2)">Installation</a><br/><br/>
+    3. <a href="#" id="m3" class="menu" onClick="showElement(-3)">Getting<br/>&emsp;Started</a><br/><br/>
+    4. <a href="#" id="m4" class="menu" onClick="showElement(-4)">Creating<br/>&emsp;Network</a><br/><br/>
+    5. <a href="#" id="m5" class="menu" onClick="showElement(-5)">Simulating<br/>&emsp;Traffic</a><br/><br/>
+    6. <a href="#" id="m6" class="menu" onClick="showElement(-6)">Demo</a><br/><br/>
+    7. <a href="#" id="m7" class="menu" onClick="showElement(-7)">License</a><br/><br/>
+    <!--6. <a href="#" id="m6" class="menu" onClick="showElement(-6)">Analyzing<br/>&emsp;Results</a><br/><br/>
+    7. <a href="#" id="m7" class="menu" onClick="showElement(-7)">Troubleshooting</a><br/><br/>
+    8. <a href="#" id="m8" class="menu" onClick="showElement(-8)">Conclusion</a><br/><br/>
+    9. <a href="#" id="m9" class="menu" onClick="showElement(-9)">Help</a><br/><br/>
+    <div><button id="openCloseAllTop" onclick="openOrCloseAll(true)">Open All Top</button><br/>&ensp;&nbsp;<button id="openCloseAll" onclick="openOrCloseAll(false)">Open All</button></div-->
+</nav>
+<section> 
+    <div id="highlight">
+        <b>Train Signaling System Simulator &amp; Read Me</b><br/>
+        <br/><br/><br/>
+    </div>
+
+
+    <div id="intro" hidden><br/>
+        <b>&emsp;1. <mark>Introduction</mark></b><br/><br/><div>
+        This simulator is a simulation program that allows several trains to depart from a designated starting point and arrive at their destination without colliding with each other.
+        This simulator provides the following features.
+        </div>
+        <details open><summary><u>Supported Features</u></summary><div><br/>
+            * <u>Key features</u>:
+            <ul>
+                <li>A facility to build the system by adding track segments, connections between track segments, signals, and a train.</li>
+                <li>A facility to start the system and run the simulation.</li>
+                <li>The simulation sets signals automatically to avoid collisions.</li>
+                <li>The simulation ends when all trains have stopped</li>
+            </ul>
+
+            * <u>Optional features</u>:
+            <ul>
+                <li>A facility to display the complete system once built. The format of this display could be as simple as a list of segments and signals, or as elaborate as a graphical display.</li>
+                <li>A facility to save the layout of the system to file, and to retrieve a layout from file.</li>
+                <li>It support for multiple trains running concurrently.</li>
+                <li>Implement support for trains longer than one track segment.</li>
+            </ul>
+
+
+            
+            
+
+        
+        </div></details>        
+        <br/><br/><br/>
+    </div>
+
+        
+    <div id="install" hidden><br/>
+        <b>2. <mark>How to install</mark></b><br/><br/>
+        <div>
+            This simulator is developed in Python language. Therefore, the Python language and related libraries must be installed to run the simulator.
+        </div><br/>
+
+            * <b>Python install</b>:<br/><div>
+            Download: Python version 3.10.2 or newer.<br/>
+            You can download the install file form the website by clicking followed link.<br/>
+
+            <i><a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a></i><br/><br/>
+            </div>
+            * Libraries to be installed are as follows:<br/>
+            <div class="cmd">
+                import simpy, pygame, colorama<br/>
+                import os, sys, time, traceback, threading, enum<br/>
+                from typing import Tuple
+            </div><br/>
+
+            <details><summary><u>simpy</u></summary><div>
+                    If you have pip installed, just type
+                    <div class="cmd">
+                        pip install simpy
+                    </div><br/>
+
+                    Installing from source
+                    <div class="cmd">
+                        python setup.py install
+                    </div><br/>
+                
+                    SimPy is a process-based discrete-event simulation framework based on standard Python.<br/>
+                    You can get more information from the link below:
+                    &emsp;&emsp;<a href="https://simpy.readthedocs.io/en/latest/index.html">https://simpy.readthedocs.io/en/latest/index.html</a>
+                </div>
+            </details><br/>
+
+            <details><summary><u>pygame</u></summary><div>
+                Pygame is a set of Python modules designed for writing video games. Pygame adds functionality on top of the excellent SDL library. This allows you to create fully featured games and multimedia programs in the python language
+                <br/>
+                <br/>
+                If you have pip installed, just type
+                <div class="cmd">
+                    python -m pip install -U pygame==2.4.0 --user
+                </div>
+                or
+                <div class="cmd">
+                    pip install pygame or pip3 install pygame
+                </div>
+              
+                &emsp;&emsp;<a href="https://www.pygame.org/news">https://www.pygame.org/news</a>
+            </div></details><br/>
+
+                <details><summary><u>colorama</u></summary><div>
+                    It has been built to make ANSI escape character sequences (for producing colored terminal text and cursor positioning) work under MS Windows:
+                    <br/>
+                    <br/>
+                    If you have pip installed, just type
+                    <div class="cmd">
+                        pip install colorama
+                    </div>
+                    or
+                    <div class="cmd">
+                        conda install -c anaconda colorama
+                    </div>
+                  
+                    
+                    <a href="https://pypi.org/project/colorama/">https://pypi.org/project/colorama</a></div>
+
+            </div></details>
+        
+        <br/><br/><br/>
+    </div>
+
+            
+    <div id="getStarted" hidden><br/>
+        <b>3. <mark>Getting Started</mark></b><br/><br>
+        <div>
+        If Python and related libraries are all installed, you can now run the simulation program.<br/>
+        Enter the command below at the DOS prompt and it will run immediately.<br/>
+
+        <div class="cmd">
+            python simulator.py
+        </div><br/><br/>
+
+        The figure below is the home menu that appears when the program is executed.<br/>
+
+        The first thing you can try is to type 'demo 1' and hit the enter key to watch<br/>
+        a simulation demo. You can watch other demo by typing one of 'demo 2', 'demo 3',<br/>
+        and 'demo 4'. If you need any help regarding available commands, just type 'h' or<br/>
+        'help' into the command prompt and hit enter. Some key commands which are supported<br/>
+        by this program are listed.<br/><br/>
+
+        <iframe class="img" style="max-height:300px;" src=".\img\Simulator_Home_Menu.png"></iframe>
+        
+        <details><summary><u>Home Menu</u></summary><div>
+            
+            ** the list of available commands.<br/>
+            <table>
+                <tr><th>COMMAND</th><th>FUNCTION</th></tr>
+                <tr><td>demo 1/2/3/4</td><td>you can run demo simulation. e.g. 'demo 1' will simulate 4 trains while 'demo 4' does 8 trains.</td></tr>
+                <tr><td>'net' or 'network'</td><td>load pre-defined traffic network raging from 1 to 7, e.g. 'net 1', net 2', etc.</td></tr>                
+                <tr><td>'load [file name]'</td><td>load component data and run simulation with 'sim' command.
+                                            e.g. 'load myFile' myFile is txt file.</td></tr>
+                <tr><td>'save'            </td><td>save edited component data to a file.</td></tr>
+                <tr><td>'ed'  or 'editor' </td><td>enter into editor mode from the top menu. type 'h' or 'help' in the editor mode to view network editing commands. Once you finish building your own network, you can get it simulated by using 'sim' or 'start' command. </td></tr>
+                <tr><td>'sim' or 'start'  </td><td>start the simulation.</td></tr>
+                <tr><td>'demo 0'          </td><td>start the simulation with pre-build traffic network 0."</td></tr>
+                <tr><td>'demo n'          </td><td>where 'n' is one of 1, 2, 3, and 4 to get the simulation <br>
+                                                    started with a pre-build traffic network.</td></tr>
+                <tr><td>'test 1'          </td><td>start the simulation with pre-build traffic network.</td></tr>
+                <tr><td>'test2'           </td><td>start the simulation with traffic network which will be<br/>
+                                                   built by this app just before simulation gets started.</td></tr>
+                <tr><td>'-e'  or 'exit'   </td><td>terminate this application.</td></tr>
+                <tr><td>r  or  return</td><td>exit the simulator</td></tr>
+                <tr><td>'h'   or 'help'   </td><td>list the available commands and arguments.</td></tr>
+            </table>
+            <i>
+            * home menu
+            exit/-e, help, edit/ed<br/>
+            sim/start<br/>
+            network/net<br/>
+            demo 1/2/3/4<br/>
+            save/load fn<br/>
+            help/-h/h<br/><br/></i>
+        </div></details><br/><br/>
+
+        <details><summary><u>Edit Menu</u></summary><div>
+            
+            ** the list of available commands and for track editor
+            <table>
+                <tr><th>COMMAND</th><th>FUNCTION</th></tr>
+                <tr><td>tr</td><td>add a Train. Once typed, you need to provide coordinates.<br/>
+                    Enter the grid coordinate at which the right edge of the train is aligned<br/>
+                    followed by another coordination for train destination.<br/>
+                    e.g. 'a1 b20'. You can see the coordinate like a cell in the Excel, but<br/>
+                    consider it as a grid rather than cell. Each crossed line as a coordinate.</td></tr>
+                <tr><td>ts</td><td>add a Track Segment. enter the grid coordinate and the orientation of the right end of the track segment.
+                    e.g. 'b2 u' where 'b2' is the coordinate and 'u' is the orientation for 'up' direction.
+                    Orientation: 'u' for up,  'd' for down,  'h' for horizontal.</td></tr>
+                <tr><td>sg / sig</td><td>add a Signal. enter the grid coordinate at which the signal is placed.<br/>
+                    e.g. 'a3' is the coordinate like in an excel cell coordinate, but<br/>
+                    see the cell as a grid and each line for a coordinate.</td></tr>
+                <tr><td>-ts</td><td>delete a Track Segment. Once typed, you need to provide coordinate and its orientation.</td></tr>
+                <tr><td>-tr</td><td>delete a Train. Once typed, you need to provide coordinate.</td></tr>
+                <tr><td>-sg</td><td>delete a Signal. Once typed, you need to provide coordinate.</td></tr>
+                <tr><td>lts</td><td>display added track segments.</td></tr>
+                <tr><td>lsg</td><td>display added signal components.</td></tr>
+                <tr><td>ltr</td><td>display train components.</td></tr>
+                <tr><td>la </td><td>display all components.</td></tr>
+                <tr><td>q / r / return </td><td>exit the editor mode and return to main menu.</td></tr>
+                <tr><td>-e </td><td>terminate simulator.</td></tr>
+            </table>
+            <i>
+            * editor menu
+                return/r/q<br/>
+                exit<br/><br/>
+                
+                ts/sg/tr<br/>
+                lts/lsg/ltr/la/lall<br/></i>
+        </div></details>
+    </div></div>
+
+    <div id="network" hidden><br/>
+        <b>4. <mark>Creating a Traffic Network</mark></b><br/><br>
+        <div>
+            Enter the 'edit' or 'ed' command in the Home menu to enter the Traffic Network editor menu.<br/>
+            As soon as it is entered, a blank window appears, which will show you any components that you add.<br/>
+            As soon as you add or delete a component, it is immediately updated on the screen.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd.png"></iframe><br/>
+<br/>
+            In this editor, you can add and delete 3 main components, that is track segments,<br/>
+            traffic signals, and trains.<br/>
+            In order to add each component, you must first enter the component keyword.<br/>
+            To add a Track Segment, for instance, simply type '<b><span class="fbby">ts</span></b>'.<br/>
+            Once you have entered the Track Segment input mode, the next step is to<br/>
+            find the coordinate values in the popped-up window prior to adding a track segment.<br/>
+            For example, if you enter A1 as in Excel, it means that you want to add<br/>
+            one Track segment at the A1 position.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_0.png"></iframe><br/>
+<br/>
+            However, you need to specify which<br/>
+            direction the track segment will be installed. In other words, to install<br/>
+            horizontally, just type 'h', the first letter of Horizontal. In other words,<br/>
+            just type 'A1 H' (but don't type the quotation marks).<br/>
+            Then, Track segments are added as shown in the figure below.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_1.png"></iframe><br/>
+            <br/>
+            The next segment can be added to C1 by typing 'C1 H'.<br/>
+            If you want to install everything horizontally from A1 to G1, simply type:<br/>
+            &emsp;  'A1:G1 H'.<br/>
+            Then you get the result below.
+<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_2.png"></iframe><br/>
+<br/>
+            Next, when adding a Track Segment from C1 to E1, always input coordinate<br/>
+            values centered on the lower left corner. In other words, enter 'C1 D'.<br/>
+            Here, D is the first letter of Down, meaning that the right end goes down.<br/>
+            If you do this, you will get the result as shown below.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_3.png"></iframe><br/>
+<br/>
+            This time, let's input the segment whose end is going up into G1.<br/>
+            If you enter 'G1 U', it will be added as shown in the figure below.<br/>
+            Here U is the first letter of Up.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_4.png"></iframe><br/>
+<br/>
+            In the end, you can add segments anywhere you want with the following format.<br/>
+            'A1 H', 'A2 D', or 'A3 U'<br/>
+<br/>
+            Now let's connect E1 and G1 by entering the last segment.<br/>
+            Since it is based on the lower left corner, you can enter 'E1 H'.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_5.png"></iframe><br/><br/>
+<br/>
+            Let's add a signal this time.<br/>
+            At this time, enter the signal addition mode by entering the keyword<br/>
+             'sig' or 'sg' corresponding to the signal.<br/>
+            After inputting 'sg', you only need to input one coordinate value to<br/>
+             locate Signal this time.<br/>
+            In this example, we will add one to E1.<br/>
+            If you simply input 'E1' and press the Enter key, a traffic signal is <br/>
+            added to E1 as shown in the figure below.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_6.png"></iframe><br/>
+            If you enter G1, another signal is added as shown below.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_7.png"></iframe><br/><br/>
+<br/>
+            Now let's add the train one last time.<br/>
+            In the case of a train, the coordinates of the departure point and<br/>
+             destination must be entered.<br/>
+            In this example, let's set the simulation to move from 'A1' to 'I1'.<br/>
+            In this case, first enter the departure point, followed by a single space character,<br/>
+             and then enter the destination point as shown below.<br/>
+            &emsp; 'A1 I1'<br/>
+            The moment you press the Enter key, a train is added as shown below.<br/>
+            This made it possible to create a traffic network.<br/>
+            <iframe class="img" src=".\img\Editor_TsAdd_8.png"></iframe><br/>
+<br/>
+            Here, enter the command 'save' and press the Enter key,<br/>
+            The network created so far is saved in the data folder in the working directory.<br/>
+            If you want to load and use it again, simply enter the 'load' command and<br/>
+             the name of the data file, and the file in the data folder will be read.<br/>
+            For example, if the file name is my_first_network.txt,<br/>
+            Just type 'load my_first_network'.<br/>
+            This completes the network creation process.<br/>
+
+        </div>
+        
+        <br/><br/><br/>
+    </div>
+
+
+
+    <div id="simulation" hidden><br/>
+        <b>5. <mark>Simulating Train Traffic System</mark></b><br/><br>
+        
+        Once you have completed the traffic network as illustrated in the previous chapter above, you can start the simulation.<br/>
+        First, enter the 'sim' or 'start' command in the command window and press the Enter key.<br/>
+        Then, the network created so far is converted into simulation data.<br/>
+        At this time, if there was a problem with the conversion, it will be displayed in the command prompt. If there is no problem, enter the letter 'y' at the prompt and press Enter to start the simulation.<br/>
+        Whenever the simulation gets started with your own network, the traffic network is saved to a file under the 'data' folder.<br/>
+        You can load the network from the file by typing 'load <i>[your network file name (just file name, no file extension, no file path required)]</i>'
+        So if your file is 'my_network.txt', then type '<b class="by">load my_network</b>'. Once it is brought on to the editor display, you can get it simulated by 'sim' or 'start' command.<br/>
+<br/>
+        In this way, we briefly looked at the process of creating the traffic network and running the simulation.<br/>
+<br/>
+        If you observe a few restrictions when creating a traffic network,<br/>
+        The simulation can finish successfully.<br/>
+        Just one major of these restrictions is that when you specify a destination for a train, you must specify the same track as the train's starting point, or one track above or one below it. If you designate 2 tracks higher or lower than the current track, it may malfunction. We expect these limitations to be addressed in the next version.<br/>
+<br/>
+        So, this concludes a brief introduction to how to use the simulation program.<br/><br/>
+<br/>
+        If you want to see some demo version of simulation,<br/>
+        Type one of the commands below and press the Enter key.<br/>
+        &emsp;&emsp; demo 1<br/>
+        &emsp;&emsp; demo 2<br/>
+        &emsp;&emsp; demo 3<br/>
+        &emsp;&emsp; demo 4<br/>
+<br/>
+        You can also run some more demo simulation by typing one of flowing commands.<br/>
+        &emsp;&emsp; test 0<br/>
+        &emsp;&emsp; test 1<br/>
+        &emsp;&emsp; test 2<br/>
+        &emsp;&emsp; test 3<br/>
+        &emsp;&emsp; test 4<br/>
+        &emsp;&emsp; test 5<br/>
+        &emsp;&emsp; test 6<br/>
+        &emsp;&emsp; test 7<br/>
+<br/>
+        You can view each network by typing 'net <i>[the network number]</i>', e.g. 'net 1' to bring the same network used with the command 'test 1'.<br/>
+<br/>
+        In addition, there is a pre-made network file in the data folder,<br/>
+        If you type in the command 'load data', it will load the network file data.txt.<br/>
+        And you can see the traffic network on the network editor window.<br/><br/>
+        <br/><br/><br/>
+    </div>
+
+
+
+    <!--div id="resultAnalysis" hidden><br/>
+        <b>6. <mark>Analyzing Results</mark></b><br/>&emsp;
+        
+        <br/><br/><br/>
+    </div>
+
+
+    <div id="troubleshooting" hidden><br/>
+        <b>7. <mark>Troubleshooting</mark></b><br/>
+        
+        <br/><br/><br/>
+    </div>
+
+
+    <div id="conclusion" hidden><br/>
+        <b>8. <mark>Conclusion</mark></b><br/>
+        
+        <br/><br/><br/>             
+    </div>
+    <div id="help" hidden><br/>
+        <b>9. <mark>Help</mark></b><br/>
+        <details><summary>9.1 <u>Abbreviations &amp; Terms</u></summary><div>
+            <table>
+                
+            </table>
+        </div></details>
+
+        
+        
+        <br/><br/><br/>
+    </div-->
+    <div id="demo" hidden><br/>
+        <b>6. <mark>Simulation Demo</mark></b><br><br>
+        <div style="margin-left:10px;">
+            <a href="https://youtu.be/eFHGy-FN03E" target="_blank"><span style="font-size: 24px;"><span style="color: blue">Link to Demo video on Youtube <i>(click)</i></span>: &ensp;<b><i>https://youtu.be/eFHGy-FN03E</i></b></span></a><br/>
+        </div>
+        <br/><br/><br/>
+    </div>
+    <div id="license" hidden><br/>
+        <b>7. <mark>LICENSE</mark></b><br><br>
+        
+        <div style="margin-left: 24px">
+            Copyright 2024   Gi Tae Cho <br><br>
+
+            Licensed under the Apache License, Version 2.0 (the "License");<br>
+            you may not use this file except in compliance with the License.<br>
+            You may obtain a copy of the License at <br><br>
+
+               http://www.apache.org/licenses/LICENSE-2.0 <br><br>
+
+            Unless required by applicable law or agreed to in writing, software <br>
+            distributed under the License is distributed on an "AS IS" BASIS, <br>
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. <br>
+            See the License for the specific language governing permissions and <br>
+            limitations under the License.
+        </div>
+        <br/><br/><br/>
+    </div>
+</section>
+</body>
+</html>

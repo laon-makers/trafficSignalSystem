@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",            
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        
+        {
+            "name": "Python: Traffic Simulator",
+            "type": "python",
+            "request": "launch",
+            //"program": "${file}",
+            "program": "simulator.py",
+            "console": "integratedTerminal",
+            //"stopOnEntry": false,
+            "justMyCode": true
+            "autoReload": {
+                "enable": true
+            }
+        }
+    ]
+
+    //** How to get the terminal autofocused when a debugging gets started.
+    //Install the Python extension for Visual Studio Code.
+    //1. Go to 'File' >> Preferences >> Settings.
+    //2. In the Search settings field enter, "Python › Terminal: Focus After Launch"
+    //3. Click on, When launching a python terminal, whether to focus the cursor on the terminal.
+    //4. A check mark should appear in the tick box.
+
+}
